@@ -111,6 +111,7 @@ export default function MapPage() {
   }, [dateOptions]);
 
   useEffect(() => {
+    const init = async () => {
       const { data: { user } } = await supabaseAuth.auth.getUser();
       if (user) setUserProfile({ id: user.id, name: user.user_metadata?.username || user.email?.split('@')[0] || 'Tourist', email: user.email, phone: user.user_metadata?.phone_number || 'N/A' });
     };
