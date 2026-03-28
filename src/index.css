@@ -965,3 +965,118 @@ p { line-height: 1.6; }
   font-weight: 800;
   letter-spacing: 0.5px;
 }
+
+/* ============================================
+   SOS EMERGENCY BEACON
+   ============================================ */
+.sos-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 25px;
+  width: 70px;
+  height: 70px;
+  background: #e11d48; /* Crimson Red */
+  color: white;
+  border-radius: 50%;
+  border: 4px solid white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(225, 29, 72, 0.6);
+  cursor: pointer;
+  z-index: 99999;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: sos-pulse 2s infinite;
+}
+.sos-fab:hover {
+  transform: scale(1.1) rotate(5deg);
+  background: #be123c;
+}
+.sos-fab:disabled {
+  background: #64748b;
+  cursor: not-allowed;
+  animation: none;
+  border-color: #cbd5e1;
+}
+.sos-fab span {
+  font-size: 0.75rem;
+  font-weight: 900;
+  margin-top: -2px;
+}
+
+@keyframes sos-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+  70% { box-shadow: 0 0 0 20px rgba(225, 29, 72, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+}
+
+.sos-modal {
+  background: white;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 400px;
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+.sos-modal h2 {
+  color: #e11d48;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+.sos-modal p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.slide-confirm-container {
+  background: #f1f5f9;
+  height: 60px;
+  border-radius: 30px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid #e2e8f0;
+}
+.slide-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
+  z-index: 1;
+  pointer-events: none;
+}
+.slide-handle {
+  position: absolute;
+  left: 5px;
+  width: 50px;
+  height: 50px;
+  background: #e11d48;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: grab;
+  transition: transform 0.1s linear;
+  box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3);
+}
+.slide-handle:active { cursor: grabbing; }
+
+.btn-sos-cancel {
+  margin-top: 1.5rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.btn-sos-cancel:hover { color: var(--text-main); }
+

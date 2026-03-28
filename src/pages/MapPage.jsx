@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { fetchLiveWeather } from '../services/weather';
 import { supabase, supabaseAuth } from '../lib/supabaseClient';
-import { MapPin, CloudSun, Compass, ShieldAlert, ArrowRight, Calendar, Clock, CheckCircle2, AlertCircle, LogOut } from 'lucide-react';
+import { MapPin, CloudSun, Compass, ShieldAlert, ArrowRight, Calendar, Clock, CheckCircle2, AlertCircle, LogOut, Shield } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import NavBar from '../components/NavBar';
@@ -57,6 +57,7 @@ const ALL_29_LOCATIONS = [
 ];
 
 export default function MapPage() {
+  console.log("AURA MapPage Rendered with SOS Beacon");
   const [locations, setLocations] = useState(ALL_29_LOCATIONS);
   const [selectedLocId, setSelectedLocId] = useState(ALL_29_LOCATIONS[0].id);
   const [selectedDate, setSelectedDate] = useState('');
@@ -72,6 +73,9 @@ export default function MapPage() {
   const [routeError, setRouteError] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const [showSOSModal, setShowSOSModal] = useState(false);
+  const [sosConfirmed, setSosConfirmed] = useState(false);
+  const [dragX, setDragX] = useState(0);
 
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
@@ -112,6 +116,18 @@ export default function MapPage() {
     };
     init();
   }, []);
+  
+  const confirmSOS = async () => {
+    setSosConfirmed(true);
+    setTimeout(() => setShowSOSModal(false), 500);
+    try {
+      await supabase.from('sos_alerts').insert({
+        location_id: selectedLocId,
+        location_name: selectedLoc?.name,
+        status: 'active'
+      });
+    } catch (err) { console.error("SOS Error:", err); }
+  };
 
   const selectedLoc = locations.find(l => l.id === selectedLocId);
 
@@ -201,6 +217,34 @@ export default function MapPage() {
   return (
     <div className="tourist-app map-page">
       <NavBar onCreatePost={() => setShowPostModal(true)} />
+
+      {/* SOS EMERGENCY BEACON - MOVED TO TOP FOR VISIBILITY */}
+      <button 
+        id="sos-alive"
+        className="sos-fab" 
+        onClick={() => !sosConfirmed && setShowSOSModal(true)}
+        disabled={sosConfirmed}
+        style={{ 
+          position: 'fixed', 
+          bottom: '30px', 
+          right: '25px', 
+          zIndex: 99999, 
+          background: '#e11d48',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '70px',
+          height: '70px',
+          borderRadius: '50%',
+          border: '4px solid #fff',
+          color: '#fff',
+          cursor: 'pointer'
+        }}
+      >
+        <Shield size={28} />
+        <span style={{ fontSize: '0.75rem', fontWeight: 900 }}>{sosConfirmed ? 'ALERTED' : 'SOS'}</span>
+      </button>
 
       {/* HERO SEARCH */}
       <section className="hero">
@@ -316,6 +360,48 @@ export default function MapPage() {
       )}
 
       {showPostModal && <CreatePostModal userProfile={userProfile} onClose={() => setShowPostModal(false)} onPosted={() => setShowPostModal(false)} />}
+
+      {showSOSModal && (
+        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+          <div className="sos-modal">
+            <Shield size={48} color="#e11d48" style={{ marginBottom: '1rem' }} />
+            <h2>Emergency Beacon</h2>
+            <p>Are you in a dangerous crowd crush or medical emergency? Slide to notify authorities at <strong>{selectedLoc?.name}</strong>.</p>
+            
+            <div className="slide-confirm-container">
+              <div className="slide-text">Slide to Confirm</div>
+              <div 
+                className="slide-handle"
+                style={{ transform: `translateX(${dragX}px)` }}
+                onMouseDown={(e) => {
+                  const startX = e.clientX;
+                  const handleMove = (moveEvent) => {
+                    const delta = Math.max(0, Math.min(moveEvent.clientX - startX, 280));
+                    setDragX(delta);
+                    if (delta >= 270) {
+                      confirmSOS();
+                      cleanup();
+                    }
+                  };
+                  const cleanup = () => {
+                    window.removeEventListener('mousemove', handleMove);
+                    window.removeEventListener('mouseup', cleanup);
+                  };
+                  window.addEventListener('mousemove', handleMove);
+                  window.addEventListener('mouseup', cleanup);
+                }}
+              >
+                <ArrowRight size={24} />
+              </div>
+            </div>
+            
+            <button className="btn-sos-cancel" onClick={() => { setShowSOSModal(false); setDragX(0); }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
