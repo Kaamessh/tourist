@@ -136,15 +136,16 @@ export default function MapPage() {
     // 1. Direct Realtime Broadcast (Try sending via ref)
     try {
       if (sosChannelRef.current) {
-        const result = await sosChannelRef.current.send({
+        const payload = { 
+          location_name: selectedLoc?.name || 'Unknown',
+          timestamp: new Date().toISOString()
+        };
+        await sosChannelRef.current.send({
           type: 'broadcast',
           event: 'emergency',
-          payload: { 
-            location_name: selectedLoc?.name || 'Unknown',
-            timestamp: new Date().toISOString()
-          }
+          payload: payload
         });
-        console.log("🛰️ SOS BROADCAST PING RESULT:", result);
+        console.log("🛰️ SOS BROADCAST PING SENT:", payload);
       } else {
         console.error("❌ SOS Channel not initialized!");
       }
@@ -428,8 +429,16 @@ export default function MapPage() {
               </div>
             </div>
             
+            <button className="btn-sos-cancel" onClick={() => {
+              if (sosChannelRef.current) {
+                sosChannelRef.current.send({ type: 'broadcast', event: 'ping', payload: {} });
+                console.log("🏓 PING SENT");
+              }
+            }} style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid #3b82f6', marginBottom: '8px' }}>
+              Test Connection (Officer Ping)
+            </button>
             <button className="btn-sos-cancel" onClick={() => { setShowSOSModal(false); setDragX(0); }}>
-              Cancel
+              Back
             </button>
           </div>
         </div>
