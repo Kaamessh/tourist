@@ -81,6 +81,7 @@ export default function MapPage() {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const gemMarkerRef = useRef(null);
+  const sosChannelRef = useRef(null); // Keep channel alive
 
   const purgeMapRoutes = () => {
     if (gemMarkerRef.current && mapRef.current) { mapRef.current.removeLayer(gemMarkerRef.current); gemMarkerRef.current = null; }
@@ -110,11 +111,20 @@ export default function MapPage() {
   }, [dateOptions]);
 
   useEffect(() => {
-    const init = async () => {
       const { data: { user } } = await supabaseAuth.auth.getUser();
       if (user) setUserProfile({ id: user.id, name: user.user_metadata?.username || user.email?.split('@')[0] || 'Tourist', email: user.email, phone: user.user_metadata?.phone_number || 'N/A' });
     };
     init();
+
+    // Initialize SOS Channel immediately on mount
+    sosChannelRef.current = supabase.channel('sos-emergency-line');
+    sosChannelRef.current.subscribe((status) => {
+      console.log("⚡ AURA: Tourist SOS Channel Status:", status);
+    });
+
+    return () => {
+      if (sosChannelRef.current) supabase.removeChannel(sosChannelRef.current);
+    };
   }, []);
   
   const confirmSOS = async () => {
@@ -122,22 +132,21 @@ export default function MapPage() {
     setSosConfirmed(true);
     setTimeout(() => setShowSOSModal(false), 500);
 
-    // 1. Direct Realtime Broadcast (Instant pop-up for Officer)
+    // 1. Direct Realtime Broadcast (Try sending via ref)
     try {
-      const channel = supabase.channel('sos-emergency-line');
-      await channel.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.send({
-            type: 'broadcast',
-            event: 'emergency',
-            payload: { 
-              location_name: selectedLoc?.name || 'Unknown',
-              timestamp: new Date().toISOString()
-            }
-          });
-          console.log("🛰️ SOS BROADCAST PING SENT!");
-        }
-      });
+      if (sosChannelRef.current) {
+        const result = await sosChannelRef.current.send({
+          type: 'broadcast',
+          event: 'emergency',
+          payload: { 
+            location_name: selectedLoc?.name || 'Unknown',
+            timestamp: new Date().toISOString()
+          }
+        });
+        console.log("🛰️ SOS BROADCAST PING RESULT:", result);
+      } else {
+        console.error("❌ SOS Channel not initialized!");
+      }
     } catch (e) { console.error("Broadcast failed:", e); }
 
     // 2. Database Backup (Permanent record)
