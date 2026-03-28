@@ -22,11 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Environment Secrets
 .env
 .env.local
-.env.*.local
-
-# Database Setup
-*.sql
+.env.development.local
+.env.test.local
+.env.production.local
