@@ -11,7 +11,7 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KE
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // 2. Mathematically Isolated Authenticator
-const authUrl = import.meta.env.VITE_TOURIST_AUTH_URL || "https://missing-auth.supabase.co";
-const authKey = import.meta.env.VITE_TOURIST_AUTH_KEY || "missing-key";
+const authUrl = import.meta.env.VITE_TOURIST_AUTH_URL || "https://rhlskcsojcpgicpnkvfr.supabase.co";
+const authKey = import.meta.env.VITE_TOURIST_AUTH_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJobHNrY3NvamNwZ2ljcG5rdmZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MzA3NTEsImV4cCI6MjA5MDIwNjc1MX0.3ssetPBHwQcNaDrOnytG3d8Bh_9wjRpZTQRyvYEOIgc";
 
 export const supabaseAuth = createClient(authUrl, authKey);
