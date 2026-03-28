@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabaseAuth } from './lib/supabaseClient';
-import TouristPortal from './pages/TouristPortal';
+import HomePage from './pages/HomePage';
+import MapPage from './pages/MapPage';
+import FeedPage from './pages/FeedPage';
+import ProfilePage from './pages/ProfilePage';
 import Login from './pages/Login';
 import './index.css';
 
-// Reusable wrapper to bounce unauthenticated travelers back to /login
 const PrivateRoute = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,21 +17,15 @@ const PrivateRoute = ({ children }) => {
       setSession(session);
       setLoading(false);
     });
-
-    const {
-      data: { subscription },
-    } = supabaseAuth.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
+    const { data: { subscription } } = supabaseAuth.auth.onAuthStateChange((_event, session) => setSession(session));
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) {
-    return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f0f9ff'}}>
-      <h2 style={{color: 'var(--teal-primary)'}}>Verifying Tourist Identity...</h2>
-    </div>;
-  }
+  if (loading) return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f0f9ff' }}>
+      <h2 style={{ color: 'var(--teal-primary)' }}>Verifying Tourist Identity...</h2>
+    </div>
+  );
 
   return session ? children : <Navigate to="/login" replace />;
 };
@@ -38,17 +34,14 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/portal" replace />} />
-        
-        {/* Isolated login route */}
         <Route path="/login" element={<Login />} />
-        
-        {/* Fully protected Tourist Dashboard route */}
-        <Route path="/portal" element={
-          <PrivateRoute>
-            <TouristPortal />
-          </PrivateRoute>
-        } />
+        <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
+        <Route path="/map" element={<PrivateRoute><MapPage /></PrivateRoute>} />
+        <Route path="/feed" element={<PrivateRoute><FeedPage /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+        {/* Legacy redirect */}
+        <Route path="/portal" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
