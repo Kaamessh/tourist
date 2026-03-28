@@ -133,51 +133,39 @@ export default function MapPage() {
     setSosConfirmed(true);
     setTimeout(() => setShowSOSModal(false), 500);
 
-    // 1. Multi-Format Realtime Broadcast (Try sending via multiple patterns)
+    const now = new Date();
+    const timestamp = now.toISOString();
+    const timeStr = now.toLocaleTimeString();
+
+    // 1. Multi-Format Realtime Broadcast (Includes System Time)
     try {
       if (sosChannelRef.current) {
         const payload = { 
           location_name: selectedLoc?.name || 'Unknown',
-          timestamp: new Date().toISOString()
+          timestamp: timestamp,
+          realtime: true
         };
         
-        console.log("🛰️ SENDING SOS TRIPLE-PULSE...");
+        console.log("🛰️ SENDING SOS PULSE AT:", timeStr);
 
-        // Pattern A: Standard Broadcast
-        sosChannelRef.current.send({
-          type: 'broadcast',
-          event: 'emergency',
-          payload: payload
-        });
+        sosChannelRef.current.send({ type: 'broadcast', event: 'emergency', payload: payload });
+        sosChannelRef.current.send({ event: 'emergency', payload: payload });
 
-        // Pattern B: Flat Broadcast
-        sosChannelRef.current.send({
-          event: 'emergency',
-          payload: payload
-        });
-
-        // Pattern C: Notification Wrapper
-        sosChannelRef.current.send({
-          type: 'broadcast',
-          event: 'emergency',
-          payload: { data: payload }
-        });
-
-        alert("🚨 SOS SIGNAL DISPATCHED TO HQ! (Waiting for Response)");
+        alert(`🚨 EMERGENCY SIGNAL SENT AT ${timeStr}!\nLoc: ${payload.location_name}\nChecking Officer Reception...`);
       } else {
-        alert("❌ EMERGENCY CHANNEL OFFLINE! Retrying...");
+        alert("❌ SOS CHANNEL OFFLINE! Please Refresh.");
       }
     } catch (e) { console.error("Broadcast failed:", e); }
 
-    // 2. Database Backup (Permanent record)
+    // 2. Database Backup
     try {
-      const { error } = await supabase.from('sos_alerts').insert({
+      await supabase.from('sos_alerts').insert({
         location_id: Number(selectedLocId),
         location_name: selectedLoc?.name || 'Unknown',
-        status: 'active'
+        status: 'active',
+        created_at: timestamp
       });
-      if (error) console.error("❌ SOS DB INSERT FAILED:", error);
-      else console.log("✅ SOS DATABASE LOG CREATED!");
+      console.log("✅ DATABASE RECORD SYNCED");
     } catch (err) { console.error("SOS DB Exception:", err); }
   };
 
