@@ -121,22 +121,35 @@ export default function MapPage() {
     console.log("🆘 TRIGGERING SOS BEACON...");
     setSosConfirmed(true);
     setTimeout(() => setShowSOSModal(false), 500);
+
+    // 1. Direct Realtime Broadcast (Instant pop-up for Officer)
+    try {
+      const channel = supabase.channel('sos-emergency-line');
+      await channel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.send({
+            type: 'broadcast',
+            event: 'emergency',
+            payload: { 
+              location_name: selectedLoc?.name || 'Unknown',
+              timestamp: new Date().toISOString()
+            }
+          });
+          console.log("🛰️ SOS BROADCAST PING SENT!");
+        }
+      });
+    } catch (e) { console.error("Broadcast failed:", e); }
+
+    // 2. Database Backup (Permanent record)
     try {
       const { error } = await supabase.from('sos_alerts').insert({
         location_id: Number(selectedLocId),
         location_name: selectedLoc?.name || 'Unknown',
         status: 'active'
       });
-      if (error) {
-        console.error("❌ SOS DB INSERT FAILED:", error);
-        alert("Emergency signal failed to reach server. Please check your connection.");
-      } else {
-        console.log("✅ SOS SIGNAL SENT SUCCESSFULLY!");
-      }
-    } catch (err) { 
-      console.error("SOS Exception:", err); 
-      alert("Error triggering emergency beacon: " + err.message);
-    }
+      if (error) console.error("❌ SOS DB INSERT FAILED:", error);
+      else console.log("✅ SOS DATABASE LOG CREATED!");
+    } catch (err) { console.error("SOS DB Exception:", err); }
   };
 
   const selectedLoc = locations.find(l => l.id === selectedLocId);
