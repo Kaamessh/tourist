@@ -33,6 +33,11 @@ export default function NavBar({ onCreatePost }) {
             ))}
           </div>
           <div className="top-nav-actions">
+            <div className="wallet-widget" onClick={() => navigate('/profile')}>
+              <span className="wallet-leaf">🌿</span>
+              <span className="coin-count">1,250</span>
+              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>AURA</span>
+            </div>
             <button className="fab-create" onClick={onCreatePost}>
               <PlusCircle size={18} /> Create Post
             </button>

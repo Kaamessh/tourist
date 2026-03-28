@@ -107,6 +107,38 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Eco-Rewards Center */}
+        <div className="profile-section">
+          <h3 className="profile-section-title">🌿 Eco-Rewards Center</h3>
+          <div className="eco-rewards-container">
+            <div className="rewards-header-card">
+              <h4>Current Balance</h4>
+              <div className="big-coin-display">1,250 <span style={{ fontSize: '1.2rem' }}>AURA</span></div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.9, marginTop: '0.5rem' }}>You've saved 4kg of CO2 this week!</p>
+            </div>
+            
+            <div className="rewards-grid">
+              {[
+                { title: 'VIP Sunbed at Palolem', desc: 'Reserved front-row seating.', cost: 500, icon: '🏖️' },
+                { title: 'Skip-the-line Basilica', desc: 'No-wait entry for 2 people.', cost: 1000, icon: '⛪' },
+                { title: '1-Day Scooter Rental', desc: 'Electric scooter for island tours.', cost: 2000, icon: '🛵' }
+              ].map(r => (
+                <div key={r.title} className="reward-card">
+                  <div className="reward-icon-box">{r.icon}</div>
+                  <h5>{r.title}</h5>
+                  <p>{r.desc}</p>
+                  <div className="reward-cost">
+                    <span>🌿 {r.cost}</span>
+                  </div>
+                  <button className="btn-redeem" onClick={() => alert('Redeem Successful! Check your email for the voucher.')}>
+                    Redeem Reward
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* My Posts Grid */}
         {myPosts.length > 0 && (
           <div className="profile-section">

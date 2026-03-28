@@ -275,19 +275,41 @@ export default function MapPage() {
       {/* NUDGE MODAL */}
       {showNudgeModal && (
         <div className="modal-overlay">
-          <div className="nudge-modal">
-            <div className="modal-header"><ShieldAlert size={42} color="var(--accent-orange)" /><h2>High Footfall Alert</h2></div>
+          <div className="nudge-modal sponsored">
+            <div className="modal-header">
+              <ShieldAlert size={42} color="#22c55e" />
+              <h2>⚠️ Protect the Ecosystem & Earn Rewards!</h2>
+            </div>
             <div className="modal-body">
-              <p style={{ fontSize: '1.2rem', margin: '0 0 1.5rem 0' }}>Based on weather and historical data, <b>{selectedLoc?.name}</b> will be severely overcrowded at <b>{selectedHour}:00</b>.</p>
-              <div className="offer-box">
-                <div className="offer-title">Exclusive AURA Reroute Offer</div>
-                <p>Visit <b>{gemData?.name || 'a nearby Hidden Gem'}</b> (just {gemData?.distance_km || ''} km away) instead! We're unlocking an exclusive <b>50% cab discount</b> for your travel!</p>
-                {routeError && <p style={{ color: 'var(--accent-red)', fontWeight: 600, marginTop: '1rem', padding: '0.8rem', background: '#ffebeb', borderRadius: '8px' }}>Map engine unable to source driving roads between these coordinates. Bypassing route trace.</p>}
+              <p style={{ fontSize: '1.2rem', margin: '0 0 1.5rem 0' }}>
+                <b>{selectedLoc?.name}</b> is currently at critical capacity. 
+                Staying here adds significant strain to the local environment.
+              </p>
+              <div className="offer-box" style={{ borderLeft: '4px solid #fbbf24', background: '#fffbeb' }}>
+                <div className="eco-badge-modal">✨ ECO-ACTION OPPORTUNITY</div>
+                <div className="offer-title" style={{ color: '#b45309', marginTop: '0.8rem' }}>Claim +500 AURA Coins instantly!</div>
+                <p>
+                  Help us reduce footfall by visiting <b>{gemData?.name || 'a nearby Hidden Gem'}</b> (just {gemData?.distance_km || ''} km away) right now. 
+                  We will instantly credit your wallet with <b>500 AURA Coins!</b>
+                </p>
+                {routeError && <p style={{ color: 'var(--accent-red)', fontWeight: 600, marginTop: '1rem', padding: '0.8rem', background: '#ffebeb', borderRadius: '8px' }}>Map engine unable to source driving roads. Bypassing route trace.</p>}
+              </div>
+              
+              <div className="sponsor-banner">
+                <span style={{ opacity: 0.7 }}>Powered by</span>
+                <div className="sponsor-logo-grid">
+                  <strong>Goa Tourism Board</strong>
+                  <span>|</span>
+                  <span style={{ fontStyle: 'italic' }}>Local Eco-Partners</span>
+                </div>
               </div>
             </div>
             <div className="modal-actions">
-              <button className="btn-accept" onClick={() => setClaimed(true)} disabled={claimed}>{claimed && !routeError ? 'Discount Attached! Plotting GPS Route...' : 'Accept Reroute & Claim 50% Cab Discount'} {claimed && !routeError ? '' : <ArrowRight size={20} />}</button>
-              {!claimed && <button className="btn-dismiss" onClick={() => setShowNudgeModal(false)}>No thanks, I'll brave the crowds</button>}
+              <button className="btn-accept" style={{ background: '#22c55e' }} onClick={() => setClaimed(true)} disabled={claimed}>
+                {claimed && !routeError ? '✨ Rewards Credited! Plotting Route...' : 'Accept Reroute & Claim +500 Coins'} 
+                {claimed && !routeError ? '' : <ArrowRight size={20} />}
+              </button>
+              {!claimed && <button className="btn-dismiss" onClick={() => setShowNudgeModal(false)}>No thanks, I'll stay here</button>}
             </div>
           </div>
         </div>
