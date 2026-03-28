@@ -754,6 +754,171 @@ p { line-height: 1.6; }
 .btn-signout:hover { background: #be123c; }
 
 /* ============================================
+   PREMIUM CUSTOM VIDEO PLAYER (YouTube Style)
+   ============================================ */
+.custom-video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 4px; /* subtle curve like modern yt */
+}
+
+.custom-video-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Prevents stretching */
+}
+
+.video-controls-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7) 40%, rgba(0, 0, 0, 0.9));
+  padding: 2.5rem 0.5rem 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.video-controls-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.video-progress-wrapper {
+  position: absolute;
+  bottom: 44px;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  display: flex;
+  align-items: center;
+  transition: height 0.1s;
+}
+
+.video-progress-wrapper:hover {
+  height: 5px;
+}
+
+.yt-progress-bar {
+  width: 100%;
+  position: absolute;
+  z-index: 5;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  height: 100%;
+  cursor: pointer;
+  outline: none;
+  margin: 0;
+}
+
+.yt-progress-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #f00; /* YouTube Red */
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.video-progress-wrapper:hover .yt-progress-bar::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.progress-filled {
+  position: absolute;
+  background: #f00;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.yt-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px;
+  height: 48px;
+}
+
+.yt-controls-left, .yt-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.yt-icon-btn {
+  background: none;
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.1s;
+}
+
+.yt-icon-btn:hover {
+  transform: scale(1.1);
+  background: rgba(255,255,255,0.1);
+}
+
+.yt-time-display {
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-left: 5px;
+}
+
+.yt-location-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  padding: 5px 12px;
+  border-radius: 4px;
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.yt-dot {
+  width: 8px;
+  height: 8px;
+  background: #fb923c;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #fb923c;
+}
+
+.custom-video-wrapper.is-fullscreen {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-radius: 0;
+  z-index: 10000;
+}
+
+/* ============================================
    CREATE POST MODAL
    ============================================ */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; }

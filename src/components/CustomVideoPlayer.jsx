@@ -56,12 +56,22 @@ export default function CustomVideoPlayer({ src, poster, locationName }) {
     setProgress(e.target.value);
   };
 
+  const formatTime = (seconds) => {
+    if (isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const currentT = videoRef.current ? formatTime(videoRef.current.currentTime) : "0:00";
+  const totalT = videoRef.current ? formatTime(videoRef.current.duration) : "0:00";
+
   const handleMouseMove = () => {
     setShowControls(true);
     clearTimeout(controlsTimeoutRef.current);
     controlsTimeoutRef.current = setTimeout(() => {
       if (isPlaying) setShowControls(false);
-    }, 2500);
+    }, 3000);
   };
 
   return (
@@ -80,36 +90,38 @@ export default function CustomVideoPlayer({ src, poster, locationName }) {
       />
 
       <div className={`video-controls-overlay ${showControls ? 'visible' : ''}`}>
-        <div className="video-progress-container">
+        <div className="video-progress-wrapper">
           <input
             type="range"
             min="0"
             max="100"
+            step="0.1"
             value={progress}
             onChange={handleSeek}
-            className="video-progress-bar"
+            className="yt-progress-bar"
           />
+          <div className="progress-filled" style={{ width: `${progress}%` }} />
         </div>
 
-        <div className="video-controls-row">
-          <div className="video-controls-left">
-            <button onClick={togglePlay} className="video-control-btn">
-              {isPlaying ? <Pause size={24} fill="white" /> : <Play size={24} fill="white" />}
+        <div className="yt-controls-row">
+          <div className="yt-controls-left">
+            <button onClick={togglePlay} className="yt-icon-btn">
+              {isPlaying ? <Pause size={22} fill="white" /> : <Play size={22} fill="white" />}
             </button>
-            <button onClick={toggleMute} className="video-control-btn">
-              {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+            <button onClick={toggleMute} className="yt-icon-btn">
+              {isMuted ? <VolumeX size={22} /> : <Volume2 size={22} />}
             </button>
+            <span className="yt-time-display">{currentT} / {totalT}</span>
           </div>
 
-          {locationName && (
-            <div className="video-location-tag">
-              <span className="dot" /> {locationName}
-            </div>
-          )}
-
-          <div className="video-controls-right">
-            <button onClick={toggleFullscreen} className="video-control-btn">
-              {isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
+          <div className="yt-controls-right">
+            {locationName && (
+              <div className="yt-location-chip">
+                <span className="yt-dot" /> {locationName}
+              </div>
+            )}
+            <button onClick={toggleFullscreen} className="yt-icon-btn">
+              {isFullscreen ? <Minimize size={22} /> : <Maximize size={22} />}
             </button>
           </div>
         </div>
