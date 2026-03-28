@@ -57,7 +57,6 @@ const ALL_29_LOCATIONS = [
 ];
 
 export default function MapPage() {
-  console.log("AURA MapPage Rendered with SOS Beacon");
   const [locations, setLocations] = useState(ALL_29_LOCATIONS);
   const [selectedLocId, setSelectedLocId] = useState(ALL_29_LOCATIONS[0].id);
   const [selectedDate, setSelectedDate] = useState('');
