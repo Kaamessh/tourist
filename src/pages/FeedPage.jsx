@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabaseAuth } from '../lib/supabaseClient';
-import { MapPin, Clock, Heart, MessageCircle, PlusCircle, Send, X, UploadCloud, Compass } from 'lucide-react';
+import { MapPin, Clock, Heart, MessageCircle, PlusCircle, Send, X, UploadCloud, Compass, Trash2 } from 'lucide-react';
 import NavBar from '../components/NavBar';
 import CreatePostModal from '../components/CreatePostModal';
 
@@ -49,6 +49,17 @@ export default function FeedPage() {
     loadPosts();
   };
 
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm("Are you sure you want to delete this discovery? This cannot be undone.")) return;
+    try {
+      const { error } = await supabaseAuth.from('posts').delete().eq('id', postId);
+      if (error) throw error;
+      setPosts(prev => prev.filter(p => p.id !== postId));
+    } catch (err) {
+      alert("Failed to delete post: " + err.message);
+    }
+  };
+
   return (
     <div className="tourist-app feed-page">
       <NavBar onCreatePost={() => setShowPostModal(true)} />
@@ -80,6 +91,15 @@ export default function FeedPage() {
                     <h4>{post.user_name}</h4>
                     <span><Clock size={12} /> {new Date(post.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })} at {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
+                  {userProfile?.id === post.user_id && (
+                    <button 
+                      onClick={() => handleDeletePost(post.id)} 
+                      className="btn-delete-intel"
+                      title="Delete your post"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
                 </div>
 
                 {post.media_url && (

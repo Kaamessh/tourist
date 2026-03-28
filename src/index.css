@@ -779,3 +779,41 @@ p { line-height: 1.6; }
 /* MAP PAGE adjustments */
 .map-page .hero { margin-top: 0; }
 
+/* Post Deletion Styles */
+.btn-delete-intel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-delete-intel:hover {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.btn-delete-thumb {
+  background: rgba(225, 29, 72, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin-left: 10px;
+}
+.btn-delete-thumb:hover {
+  transform: scale(1.1);
+  background: #be123c;
+}
+
+

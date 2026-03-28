@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabaseAuth } from '../lib/supabaseClient';
-import { User, Mail, Phone, LogOut, Grid, Bell, ChevronRight } from 'lucide-react';
+import { User, Mail, Phone, LogOut, Grid, Bell, ChevronRight, Trash2 } from 'lucide-react';
 import NavBar from '../components/NavBar';
 import CreatePostModal from '../components/CreatePostModal';
 
@@ -36,6 +36,18 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     await supabaseAuth.auth.signOut();
     navigate('/login');
+  };
+
+  const handleDeletePost = async (postId, e) => {
+    e.stopPropagation(); // Don't trigger any other clicks
+    if (!window.confirm("Delete this discovery?")) return;
+    try {
+      const { error } = await supabaseAuth.from('posts').delete().eq('id', postId);
+      if (error) throw error;
+      setMyPosts(prev => prev.filter(p => p.id !== postId));
+    } catch (err) {
+      alert("Failed to delete: " + err.message);
+    }
   };
 
   const initial = userProfile?.name?.[0]?.toUpperCase() || '?';
@@ -109,6 +121,13 @@ export default function ProfilePage() {
                   )}
                   <div className="my-post-hover">
                     <span>❤️ {post.likes || 0}</span>
+                    <button 
+                      onClick={(e) => handleDeletePost(post.id, e)} 
+                      className="btn-delete-thumb"
+                      title="Delete Post"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </div>
               ))}
