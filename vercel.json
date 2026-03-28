@@ -1,7 +1,4 @@
 {
-  "rewriteConfig": {
-    "dynamicContent": true
-  },
   "rewrites": [
     {
       "source": "/(.*)",
