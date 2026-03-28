@@ -83,7 +83,12 @@ export default function Login() {
       alert("Aura Tourist Profile secured!\nPlease login using your new credentials.");
       setIsLogin(true);
     } catch (err) {
-      setErrorMsg(err.message);
+      // Improve error clarity for unique constraints
+      if (err.message?.includes('tourists_username_key') || err.message?.toLowerCase().includes('duplicate') || err.message?.includes('23505')) {
+        setErrorMsg('Username or Phone Number already taken! Try another one.');
+      } else {
+        setErrorMsg(err.message);
+      }
     } finally {
       setLoading(false);
     }

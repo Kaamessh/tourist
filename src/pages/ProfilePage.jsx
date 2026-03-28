@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabaseAuth } from '../lib/supabaseClient';
-import { User, Mail, Phone, LogOut, Grid, Bell, ChevronRight, Trash2 } from 'lucide-react';
+import { User, Mail, Phone, LogOut, Grid, Bell, ChevronRight, Trash2, X } from 'lucide-react';
 import NavBar from '../components/NavBar';
 import CreatePostModal from '../components/CreatePostModal';
 import CustomVideoPlayer from '../components/CustomVideoPlayer';
@@ -13,6 +13,10 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [nudgeEnabled, setNudgeEnabled] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({ username: '', phone: '' });
+  const [saving, setSaving] = useState(false);
+  const [editError, setEditError] = useState('');
 
   useEffect(() => {
     const init = async () => {
@@ -37,6 +41,43 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     await supabaseAuth.auth.signOut();
     navigate('/login');
+  };
+
+  const handleSaveProfile = async () => {
+    if (!editForm.username.trim()) return setEditError('Username cannot be empty');
+    setSaving(true);
+    setEditError('');
+    try {
+      // 1. Update Database
+      const { error: dbErr } = await supabaseAuth
+        .from('tourists')
+        .update({ 
+          username: editForm.username, 
+          phone_number: editForm.phone 
+        })
+        .eq('id', userProfile.id);
+
+      if (dbErr) {
+        if (dbErr.code === '23505') throw new Error('Username or Phone Number already taken!');
+        throw dbErr;
+      }
+
+      // 2. Update Auth Metadata
+      const { error: authErr } = await supabaseAuth.auth.updateUser({
+        data: { 
+          username: editForm.username, 
+          phone_number: editForm.phone 
+        }
+      });
+      if (authErr) throw authErr;
+
+      setUserProfile(prev => ({ ...prev, name: editForm.username, phone: editForm.phone }));
+      setIsEditing(false);
+    } catch (err) {
+      setEditError(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDeletePost = async (post, e) => {
@@ -80,7 +121,18 @@ export default function ProfilePage() {
 
         {/* Info cards */}
         <div className="profile-section">
-          <h3 className="profile-section-title">Profile Information</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 className="profile-section-title" style={{ margin: 0 }}>Profile Information</h3>
+            <button 
+              onClick={() => {
+                setEditForm({ username: userProfile?.name, phone: userProfile?.phone });
+                setIsEditing(true);
+              }}
+              style={{ background: 'none', border: 'none', color: 'var(--teal-primary)', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}
+            >
+              Edit Profile
+            </button>
+          </div>
           {[
             { icon: <User size={18} color="#0D9488" />, label: 'Username', value: userProfile?.name },
             { icon: <Mail size={18} color="#0D9488" />, label: 'Email', value: userProfile?.email },
@@ -96,6 +148,54 @@ export default function ProfilePage() {
             </div>
           ))}
         </div>
+
+        {/* Edit Modal */}
+        {isEditing && (
+          <div className="modal-backdrop">
+            <div className="modal-card">
+              <div className="modal-header">
+                <h3>Update Your Identity</h3>
+                <button onClick={() => setIsEditing(false)} className="modal-close"><X size={20} /></button>
+              </div>
+              <div className="modal-body">
+                <div className="modal-field">
+                  <User size={16} color="#0D9488" />
+                  <input
+                    value={editForm.username}
+                    onChange={e => setEditForm({ ...editForm, username: e.target.value })}
+                    placeholder="New Username"
+                    className="modal-input"
+                  />
+                </div>
+                <div className="modal-field">
+                  <Phone size={16} color="#0D9488" />
+                  <input
+                    value={editForm.phone}
+                    onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
+                    placeholder="Phone Number"
+                    className="modal-input"
+                  />
+                </div>
+                {editError && <p style={{ color: '#ef4444', fontSize: '0.85rem', margin: 0 }}>{editError}</p>}
+              </div>
+              <div className="modal-footer">
+                <button 
+                  onClick={() => setIsEditing(false)} 
+                  className="btn-cancel"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleSaveProfile} 
+                  disabled={saving} 
+                  className="btn-post"
+                >
+                  {saving ? 'Saving...' : 'Confirm Update'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Settings */}
         <div className="profile-section">
