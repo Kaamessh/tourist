@@ -38,13 +38,21 @@ export default function ProfilePage() {
     navigate('/login');
   };
 
-  const handleDeletePost = async (postId, e) => {
-    e.stopPropagation(); // Don't trigger any other clicks
-    if (!window.confirm("Delete this discovery?")) return;
+  const handleDeletePost = async (post, e) => {
+    e.stopPropagation();
+    if (!window.confirm("Delete this discovery permanently?")) return;
     try {
-      const { error } = await supabaseAuth.from('posts').delete().eq('id', postId);
+      // 1. Remove from Storage if media exists
+      if (post.media_url) {
+        const fileName = post.media_url.split('/').pop();
+        await supabaseAuth.storage.from('tourist_media').remove([fileName]);
+      }
+
+      // 2. Remove from Database
+      const { error } = await supabaseAuth.from('posts').delete().eq('id', post.id);
       if (error) throw error;
-      setMyPosts(prev => prev.filter(p => p.id !== postId));
+      
+      setMyPosts(prev => prev.filter(p => p.id !== post.id));
     } catch (err) {
       alert("Failed to delete: " + err.message);
     }
@@ -154,7 +162,7 @@ export default function ProfilePage() {
                   <div className="my-post-hover">
                     <span>❤️ {post.likes || 0}</span>
                     <button 
-                      onClick={(e) => handleDeletePost(post.id, e)} 
+                      onClick={(e) => handleDeletePost(post, e)} 
                       className="btn-delete-thumb"
                       title="Delete Post"
                     >

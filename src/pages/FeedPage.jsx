@@ -74,12 +74,20 @@ export default function FeedPage() {
     loadPosts();
   };
 
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm("Are you sure you want to delete this discovery? This cannot be undone.")) return;
+  const handleDeletePost = async (post) => {
+    if (!window.confirm("Are you sure you want to delete this discovery permanently? This cannot be undone.")) return;
     try {
-      const { error } = await supabaseAuth.from('posts').delete().eq('id', postId);
+      // 1. Remove from Storage if media exists
+      if (post.media_url) {
+        const fileName = post.media_url.split('/').pop();
+        await supabaseAuth.storage.from('tourist_media').remove([fileName]);
+      }
+
+      // 2. Remove from Database
+      const { error } = await supabaseAuth.from('posts').delete().eq('id', post.id);
       if (error) throw error;
-      setPosts(prev => prev.filter(p => p.id !== postId));
+      
+      setPosts(prev => prev.filter(p => p.id !== post.id));
     } catch (err) {
       alert("Failed to delete post: " + err.message);
     }
@@ -118,7 +126,7 @@ export default function FeedPage() {
                   </div>
                   {userProfile?.id === post.user_id && (
                     <button 
-                      onClick={() => handleDeletePost(post.id)} 
+                      onClick={() => handleDeletePost(post)} 
                       className="btn-delete-intel"
                       title="Delete your post"
                     >
