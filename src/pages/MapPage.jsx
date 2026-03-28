@@ -133,21 +133,39 @@ export default function MapPage() {
     setSosConfirmed(true);
     setTimeout(() => setShowSOSModal(false), 500);
 
-    // 1. Direct Realtime Broadcast (Try sending via ref)
+    // 1. Multi-Format Realtime Broadcast (Try sending via multiple patterns)
     try {
       if (sosChannelRef.current) {
         const payload = { 
           location_name: selectedLoc?.name || 'Unknown',
           timestamp: new Date().toISOString()
         };
-        await sosChannelRef.current.send({
+        
+        console.log("🛰️ SENDING SOS TRIPLE-PULSE...");
+
+        // Pattern A: Standard Broadcast
+        sosChannelRef.current.send({
           type: 'broadcast',
           event: 'emergency',
           payload: payload
         });
-        console.log("🛰️ SOS BROADCAST PING SENT:", payload);
+
+        // Pattern B: Flat Broadcast
+        sosChannelRef.current.send({
+          event: 'emergency',
+          payload: payload
+        });
+
+        // Pattern C: Notification Wrapper
+        sosChannelRef.current.send({
+          type: 'broadcast',
+          event: 'emergency',
+          payload: { data: payload }
+        });
+
+        alert("🚨 SOS SIGNAL DISPATCHED TO HQ! (Waiting for Response)");
       } else {
-        console.error("❌ SOS Channel not initialized!");
+        alert("❌ EMERGENCY CHANNEL OFFLINE! Retrying...");
       }
     } catch (e) { console.error("Broadcast failed:", e); }
 
