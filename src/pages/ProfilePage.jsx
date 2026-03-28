@@ -4,6 +4,7 @@ import { supabaseAuth } from '../lib/supabaseClient';
 import { User, Mail, Phone, LogOut, Grid, Bell, ChevronRight, Trash2 } from 'lucide-react';
 import NavBar from '../components/NavBar';
 import CreatePostModal from '../components/CreatePostModal';
+import CustomVideoPlayer from '../components/CustomVideoPlayer';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -155,7 +156,11 @@ export default function ProfilePage() {
               {myPosts.map(post => (
                 <div key={post.id} className="my-post-thumb">
                   {post.media_url ? (
-                    <img src={post.media_url} alt={post.caption} />
+                    post.media_url.toLowerCase().endsWith('.mp4') ? (
+                      <CustomVideoPlayer src={post.media_url} />
+                    ) : (
+                      <img src={post.media_url} alt={post.caption} />
+                    )
                   ) : (
                     <div className="post-text-thumb">{post.caption?.slice(0, 30) || '📝'}</div>
                   )}

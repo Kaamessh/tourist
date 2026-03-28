@@ -4,6 +4,7 @@ import { supabaseAuth } from '../lib/supabaseClient';
 import { MapPin, Clock, Heart, MessageCircle, PlusCircle, Send, X, UploadCloud, Compass, Trash2 } from 'lucide-react';
 import NavBar from '../components/NavBar';
 import CreatePostModal from '../components/CreatePostModal';
+import CustomVideoPlayer from '../components/CustomVideoPlayer';
 
 export default function FeedPage() {
   const navigate = useNavigate();
@@ -138,7 +139,10 @@ export default function FeedPage() {
                 {post.media_url && (
                   <div className="post-media-container">
                     {post.media_url.toLowerCase().endsWith('.mp4') ? (
-                      <video src={post.media_url} controls style={{ width: '100%' }} />
+                      <CustomVideoPlayer 
+                        src={post.media_url} 
+                        locationName={post.location_name} 
+                      />
                     ) : (
                       <img src={post.media_url} alt="Post" />
                     )}
