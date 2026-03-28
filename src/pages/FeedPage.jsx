@@ -36,9 +36,34 @@ export default function FeedPage() {
     init();
   }, []);
 
-  const handleLike = async (postId, currentLikes) => {
-    await supabaseAuth.from('posts').update({ likes: (currentLikes || 0) + 1 }).eq('id', postId);
-    loadPosts();
+  const handleLike = async (post) => {
+    if (!userProfile) return;
+    const userId = userProfile.id;
+    const likedBy = post.liked_by || [];
+    const isLiked = likedBy.includes(userId);
+    
+    let newLikedBy;
+    if (isLiked) {
+      newLikedBy = likedBy.filter(id => id !== userId);
+    } else {
+      newLikedBy = [...likedBy, userId];
+    }
+    
+    try {
+      const { error } = await supabaseAuth.from('posts').update({ 
+        liked_by: newLikedBy,
+        likes: newLikedBy.length 
+      }).eq('id', post.id);
+      
+      if (error) throw error;
+      
+      // Optimistic UI update
+      setPosts(prev => prev.map(p => 
+        p.id === post.id ? { ...p, liked_by: newLikedBy, likes: newLikedBy.length } : p
+      ));
+    } catch (err) {
+      console.error("Like error:", err);
+    }
   };
 
   const handleComment = async (postId) => {
@@ -121,8 +146,15 @@ export default function FeedPage() {
                   {post.caption && <p className="post-caption">{post.caption}</p>}
                   <div className="post-actions-row">
                     <div style={{ display: 'flex', gap: '1.5rem' }}>
-                      <button onClick={() => handleLike(post.id, post.likes)} className="action-btn like-btn" style={{ color: post.likes > 0 ? '#e11d48' : '#64748b' }}>
-                        <Heart size={20} fill={post.likes > 0 ? '#e11d48' : 'none'} /> {post.likes || 0}
+                      <button 
+                        onClick={() => handleLike(post)} 
+                        className="action-btn like-btn" 
+                        style={{ color: post.liked_by?.includes(userProfile?.id) ? '#e11d48' : '#64748b' }}
+                      >
+                        <Heart 
+                          size={20} 
+                          fill={post.liked_by?.includes(userProfile?.id) ? '#e11d48' : 'none'} 
+                        /> {post.likes || 0}
                       </button>
                       <button className="action-btn"><MessageCircle size={20} /> {post.comments?.length || 0}</button>
                     </div>
