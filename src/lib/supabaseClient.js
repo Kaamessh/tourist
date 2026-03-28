@@ -1,27 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
-// 1. Core Data Sync Client (Reads massive 168hr forecasts mapped directly by the Officer Dashboard)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// 1. Core Data Sync Client
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://missing-url.supabase.co";
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "missing-key";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("🚩 AURA ERROR: Core Data Keys are MISSING from Vercel! Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.")
+if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  console.warn("⚠️ AURA CONFIG: Missing Vercel Environment Variables! The app is using a fallback to prevent a crash.");
 }
 
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co', 
-  supabaseAnonKey || 'placeholder_key'
-)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// 2. Mathematically Isolated Authenticator (Separates Tourist Consumer PII from Official Intelligence DBs)
-const authUrl = import.meta.env.VITE_TOURIST_AUTH_URL
-const authKey = import.meta.env.VITE_TOURIST_AUTH_KEY
+// 2. Mathematically Isolated Authenticator
+const authUrl = import.meta.env.VITE_TOURIST_AUTH_URL || "https://missing-auth.supabase.co";
+const authKey = import.meta.env.VITE_TOURIST_AUTH_KEY || "missing-key";
 
-if (!authUrl || !authKey) {
-  console.error("🚩 AURA ERROR: Tourist Auth Keys are MISSING from Vercel! Check VITE_TOURIST_AUTH_URL and VITE_TOURIST_AUTH_KEY.")
-}
-
-export const supabaseAuth = createClient(
-  authUrl || 'https://rhlskcsojcpgicpnkvfr.supabase.co', 
-  authKey || 'placeholder_key'
-);
+export const supabaseAuth = createClient(authUrl, authKey);
