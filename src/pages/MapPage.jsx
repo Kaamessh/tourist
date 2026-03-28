@@ -57,6 +57,7 @@ const ALL_29_LOCATIONS = [
 ];
 
 export default function MapPage() {
+  console.log("AURA MapPage Rendered with SOS Beacon");
   const [locations, setLocations] = useState(ALL_29_LOCATIONS);
   const [selectedLocId, setSelectedLocId] = useState(ALL_29_LOCATIONS[0].id);
   const [selectedDate, setSelectedDate] = useState('');
@@ -117,15 +118,25 @@ export default function MapPage() {
   }, []);
   
   const confirmSOS = async () => {
+    console.log("🆘 TRIGGERING SOS BEACON...");
     setSosConfirmed(true);
     setTimeout(() => setShowSOSModal(false), 500);
     try {
-      await supabase.from('sos_alerts').insert({
-        location_id: selectedLocId,
-        location_name: selectedLoc?.name,
+      const { error } = await supabase.from('sos_alerts').insert({
+        location_id: Number(selectedLocId),
+        location_name: selectedLoc?.name || 'Unknown',
         status: 'active'
       });
-    } catch (err) { console.error("SOS Error:", err); }
+      if (error) {
+        console.error("❌ SOS DB INSERT FAILED:", error);
+        alert("Emergency signal failed to reach server. Please check your connection.");
+      } else {
+        console.log("✅ SOS SIGNAL SENT SUCCESSFULLY!");
+      }
+    } catch (err) { 
+      console.error("SOS Exception:", err); 
+      alert("Error triggering emergency beacon: " + err.message);
+    }
   };
 
   const selectedLoc = locations.find(l => l.id === selectedLocId);
